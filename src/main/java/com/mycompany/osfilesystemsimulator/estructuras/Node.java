@@ -13,6 +13,7 @@ package com.mycompany.osfilesystemsimulator.estructuras;
  * Proporciona soporte para punteros hacia adelante y hacia atrás, optimizando
  * operaciones en listas y colas personalizadas.
  * * @param <T> El tipo de dato que almacenará el nodo.
+ * @param <T>
  */
 public class Node<T> {
 

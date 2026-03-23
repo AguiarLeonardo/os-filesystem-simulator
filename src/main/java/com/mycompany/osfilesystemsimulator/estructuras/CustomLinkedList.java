@@ -13,6 +13,7 @@ package com.mycompany.osfilesystemsimulator.estructuras;
  * Esta clase es la base para la asignación encadenada del sistema de archivos
  * y la gestión de procesos en el planificador.
  * * @param <T> El tipo de elementos contenidos en la lista.
+ * @param <T>
  */
 public class CustomLinkedList<T> {
 
