@@ -16,9 +16,10 @@ import estructuras.CustomLinkedList;
  */
 public class FileSystemNode {
 
+    private String owner; // "ADMIN" o "USER"
+    private boolean isPublic; // true si todos pueden leerlo, false si es privado
     private String name;
     private final boolean isDirectory;
-    private final String owner;
     private int sizeInBlocks;
     private int startBlockId;
     
@@ -35,6 +36,7 @@ public class FileSystemNode {
         this.name = name;
         this.isDirectory = isDirectory;
         this.owner = owner;
+        this.isPublic = true; // Por defecto los archivos nacen siendo públicos
         this.sizeInBlocks = 0;
         this.startBlockId = -1; // -1 indica que no tiene bloques asignados aún
         
@@ -56,8 +58,7 @@ public class FileSystemNode {
      * Actualiza el nombre del nodo aplicando validaciones estrictas de sistema de archivos.
      * Lógica: Previene cadenas vacías y caracteres reservados a nivel de OS que podrían
      * corromper las rutas o la visualización en el JTree.
-     * * @param newName El nuevo nombre propuesto.
-     * @param newName
+     * @param newName El nuevo nombre propuesto.
      * @throws Exception Si el nombre es nulo, vacío o contiene caracteres prohibidos.
      */
     public void setName(String newName) throws Exception {
@@ -130,5 +131,35 @@ public class FileSystemNode {
      */
     public CustomLinkedList<FileSystemNode> getChildren() {
         return children;
+    }
+
+    // --- MÉTODOS DE SEGURIDAD (FASE 1) ---
+
+    /**
+     * @return El usuario propietario del archivo (ADMIN o USER).
+     */
+    public String getOwner() {
+        return owner;
+    }
+
+    /**
+     * @param owner El nuevo propietario del archivo.
+     */
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * @return true si es de acceso público, false si es privado.
+     */
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    /**
+     * @param isPublic Establece si el archivo puede ser leído por otros usuarios.
+     */
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

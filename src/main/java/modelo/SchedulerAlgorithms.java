@@ -7,9 +7,6 @@ package modelo;
 import estructuras.CustomLinkedList;
 
 /** * Autor: AguiarLeonardo 
- */
-
-/**
  * Subsistema: Matemáticas de Planificación
  * Descripción: Clase de utilidad pura (Utility Class) que aloja la lógica 
  * estática de los algoritmos de disco. Implementa búsqueda heurística e 
@@ -43,6 +40,13 @@ public class SchedulerAlgorithms {
         for (int i = 0; i < list.size(); i++) {
             ProcessControlBlock pcb = list.get(i);
             int block = pcb.getStartBlockId(); 
+            
+            // --- NUEVA REGLA: Si es una creación (-1), se atiende de inmediato ---
+            if (block == -1) {
+                list.remove(pcb);
+                return pcb;
+            }
+            
             int diff = Math.abs(block - currentHead);
             
             if (diff < minDiff) {
@@ -74,6 +78,12 @@ public class SchedulerAlgorithms {
             ProcessControlBlock pcb = list.get(i);
             int block = pcb.getStartBlockId();
             
+            // --- NUEVA REGLA ---
+            if (block == -1) {
+                list.remove(pcb);
+                return pcb;
+            }
+            
             if (direction.equals("UP") && block >= currentHead) {
                 int diff = block - currentHead;
                 if (diff < minDiff) { minDiff = diff; best = pcb; }
@@ -88,6 +98,8 @@ public class SchedulerAlgorithms {
             for (int i = 0; i < list.size(); i++) {
                 ProcessControlBlock pcb = list.get(i);
                 int block = pcb.getStartBlockId();
+                
+                if (block == -1) { list.remove(pcb); return pcb; } // Por seguridad
                 
                 // Si iba "UP", rebotó en el techo y ahora va "DOWN" -> tomamos el cilindro más alto posible
                 if (direction.equals("UP")) {
@@ -123,6 +135,12 @@ public class SchedulerAlgorithms {
             ProcessControlBlock pcb = list.get(i);
             int block = pcb.getStartBlockId();
             
+            // --- NUEVA REGLA ---
+            if (block == -1) {
+                list.remove(pcb);
+                return pcb;
+            }
+            
             if (direction.equals("UP") && block >= currentHead) {
                 int diff = block - currentHead;
                 if (diff < minDiff) { minDiff = diff; best = pcb; }
@@ -137,6 +155,8 @@ public class SchedulerAlgorithms {
             for (int i = 0; i < list.size(); i++) {
                 ProcessControlBlock pcb = list.get(i);
                 int block = pcb.getStartBlockId();
+                
+                if (block == -1) { list.remove(pcb); return pcb; } // Por seguridad
                 
                 // Iba "UP" -> Salta a 0 y toma el cilindro más bajo
                 if (direction.equals("UP")) {

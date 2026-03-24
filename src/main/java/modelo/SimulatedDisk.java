@@ -5,17 +5,13 @@
 package modelo;
 
 /** * Autor: AguiarLeonardo 
- */
-/**
  * Subsistema: Simulación de Almacenamiento Secundario
  * Descripción: Administra el espacio de un disco simulado en memoria principal.
- * Implementa un esquema de asignación encadenada, buscando bloques libres
- * de forma secuencial y enlazándolos lógicamente. Los métodos críticos están
- * sincronizados para garantizar thread-safety durante las peticiones concurrentes de E/S.
+ * Implementa un esquema de asignación encadenada.
  */
 public class SimulatedDisk {
 
-    // Arreglo primitivo para el almacenamiento continuo en memoria, O(1) en acceso físico.
+    // Arreglo primitivo para el almacenamiento continuo en memoria
     private final FileBlock[] storage; 
     private int totalCapacity;
     private int availableBlocks;
@@ -48,12 +44,6 @@ public class SimulatedDisk {
 
     /**
      * Asigna una cadena de bloques para un archivo nuevo.
-     * Lógica: Escanea el arreglo secuencialmente buscando bloques libres.
-     * Cuando encuentra uno, lo marca como ocupado y lo enlaza con el bloque anterior.
-     * * @param fileName Nombre del archivo a crear.
-     * @param requiredBlocks Cantidad de bloques que requiere el archivo.
-     * @return El índice del bloque inicial (head) de la cadena.
-     * @throws Exception Si el disco no tiene fragmentos libres suficientes.
      */
     public synchronized int allocateChain(String fileName, int requiredBlocks) throws Exception {
         if (requiredBlocks > availableBlocks) {
@@ -64,7 +54,6 @@ public class SimulatedDisk {
         int previousBlock = -1;
         int blocksAllocated = 0;
 
-        // Escaneo lineal para asignación (Simulación de búsqueda de sectores)
         for (int i = 0; i < totalCapacity && blocksAllocated < requiredBlocks; i++) {
             FileBlock current = storage[i];
             
@@ -72,12 +61,10 @@ public class SimulatedDisk {
                 current.setOccupied(true);
                 current.setOwnerFileName(fileName);
                 
-                // Si es el primer bloque encontrado, guardamos el puntero inicial
                 if (startBlock == -1) {
                     startBlock = current.getBlockId();
                 }
                 
-                // Enlazar lógicamente el bloque anterior con este nuevo bloque
                 if (previousBlock != -1) {
                     storage[previousBlock].setNextBlockId(current.getBlockId());
                 }
@@ -88,7 +75,6 @@ public class SimulatedDisk {
             }
         }
         
-        // Sellar la cadena en el último bloque asignado (EOF)
         if (previousBlock != -1) {
             storage[previousBlock].setNextBlockId(-1);
         }
@@ -98,36 +84,59 @@ public class SimulatedDisk {
 
     /**
      * Libera una cadena completa de bloques basándose en su bloque inicial.
-     * Lógica: Recorre los punteros lógicos (nextBlockId) limpiando recursivamente
-     * la memoria hasta encontrar el marcador de EOF (-1).
-     * * @param startBlockId El identificador del primer bloque del archivo.
      */
     public synchronized void freeChain(int startBlockId) {
         int currentId = startBlockId;
         
         while (currentId != -1 && currentId < totalCapacity) {
             FileBlock block = storage[currentId];
-            int nextId = block.getNextBlockId(); // Guardar el puntero antes de limpiar
+            int nextId = block.getNextBlockId(); 
             
             if (block.isOccupied()) {
                 block.clearBlock();
                 availableBlocks++;
             }
             
-            currentId = nextId; // Mover el cabezal de lectura al siguiente bloque
+            currentId = nextId; 
         }
     }
 
     /**
      * Retorna una referencia de lectura directa a un bloque específico.
-     * @param index Índice físico del bloque en el arreglo.
-     * @return Referencia al objeto FileBlock.
-     * @throws IndexOutOfBoundsException Si el índice no existe físicamente.
      */
     public FileBlock getBlock(int index) {
         if (index < 0 || index >= totalCapacity) {
             throw new IndexOutOfBoundsException("Intento de acceso a sector inválido del disco: " + index);
         }
         return storage[index];
+    }
+    
+    /**
+     * NUEVO: Formatea el disco completo. Usado en la Recuperación del Sistema.
+     */
+    public synchronized void formatDisk() {
+        for (int i = 0; i < totalCapacity; i++) {
+            if (storage[i].isOccupied()) {
+                storage[i].clearBlock();
+            }
+        }
+        this.availableBlocks = totalCapacity; // Reseteamos la capacidad
+    }
+
+    /**
+     * Genera un arreglo de enteros que representa la tabla de asignación (FAT).
+     * Esto es lo que usa la Vista para llenar la tabla del disco.
+     * @return Arreglo donde cada índice contiene el ID del siguiente bloque (-1 si es fin, 0 si está libre).
+     */
+    public int[] getFatTable() {
+        int[] fatTable = new int[totalCapacity];
+        for (int i = 0; i < totalCapacity; i++) {
+            if (storage[i].isOccupied()) {
+                fatTable[i] = storage[i].getNextBlockId();
+            } else {
+                fatTable[i] = 0; // Representa bloque libre en la interfaz
+            }
+        }
+        return fatTable;
     }
 }

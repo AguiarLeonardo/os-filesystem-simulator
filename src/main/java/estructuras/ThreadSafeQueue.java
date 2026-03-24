@@ -68,6 +68,35 @@ public class ThreadSafeQueue<T> {
             mutex.release();   // Liberar el acceso a la estructura
         }
     }
+    
+    /**
+     * NUEVO: Extrae un elemento de la cola utilizando la política de un planificador.
+     * Esencial para SSTF, SCAN y C-SCAN, donde no siempre sale el primer elemento.
+     * @param scheduler El planificador que decidirá qué proceso extraer.
+     * @return El proceso seleccionado, o null si está vacía.
+     * @throws InterruptedException si el hilo es interrumpido.
+     */
+    public T extractScheduled(modelo.DiskScheduler scheduler) throws InterruptedException {
+        items.acquire();       // Bloquea si la cola está vacía
+        mutex.acquire();       // Sección crítica
+        try {
+            // Hacemos un cast seguro ya que sabemos que en este contexto T es ProcessControlBlock
+            @SuppressWarnings("unchecked")
+            CustomLinkedList<modelo.ProcessControlBlock> castedQueue = 
+                (CustomLinkedList<modelo.ProcessControlBlock>) queue;
+            
+            // Le pasamos la lista entera al planificador. Él decidirá, lo sacará con .remove() y lo devolverá.
+            modelo.ProcessControlBlock selectedProcess = scheduler.getNextRequest(castedQueue);
+            
+            // Devolvemos el ganador ya casteado de vuelta a T
+            @SuppressWarnings("unchecked")
+            T result = (T) selectedProcess;
+            return result;
+            
+        } finally {
+            mutex.release();   // Libera el candado
+        }
+    }
 
     /**
      * Observa el elemento en el frente de la cola sin extraerlo.
