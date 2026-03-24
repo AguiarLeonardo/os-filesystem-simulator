@@ -19,7 +19,7 @@ public class ProcessControlBlock {
     private String operationType;
     private String targetFileName;
     private int requiredBlocks;
-
+    private int startBlockId; // Nuevo atributo necesario para los algoritmos
     /**
      * Construye un nuevo Bloque de Control de Proceso.
      * Todo proceso recién creado ingresa automáticamente en el estado "nuevo".
@@ -111,5 +111,12 @@ public class ProcessControlBlock {
 
     public synchronized void setRequiredBlocks(int requiredBlocks) {
         this.requiredBlocks = requiredBlocks;
+    }
+    public synchronized int getStartBlockId() {
+    return startBlockId;
+    }
+
+    public synchronized void setStartBlockId(int startBlockId) {
+        this.startBlockId = startBlockId;
     }
 }
