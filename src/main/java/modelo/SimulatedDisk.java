@@ -139,4 +139,26 @@ public class SimulatedDisk {
         }
         return fatTable;
     }
+    
+    public void allocateSpecificBlocks(int start, int quantity, String fileName) {
+        for (int i = 0; i < quantity; i++) {
+            int currentBlock = start + i;
+            
+            // Verificamos que no nos salgamos del tamaño del disco
+            if (currentBlock < storage.length) {
+                // 1. Marcamos como ocupado (usando tu método setOccupied)
+                storage[currentBlock].setOccupied(true);
+                
+                // 2. Asignamos el nombre (usando tu método setOwnerFileName)
+                storage[currentBlock].setOwnerFileName(fileName);
+                
+                // 3. Creamos la cadena de bloques (Siguiente bloque)
+                if (i < quantity - 1) {
+                    storage[currentBlock].setNextBlockId(currentBlock + 1);
+                } else {
+                    storage[currentBlock].setNextBlockId(-1); // Fin de archivo (EOF)
+                }
+            }
+        }
+    }
 }

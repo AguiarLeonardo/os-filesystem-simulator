@@ -351,6 +351,9 @@ public class GUIController {
                     fileNode.setSizeInBlocks(blocks);
                     fileNode.setStartBlockId(pos); 
                     rootNode.getChildren().add(fileNode);
+                    
+                    // Le decimos al disco: "Ocupa desde el bloque 'pos', 'n' cantidad de bloques con este nombre"
+                    discoFisico.allocateSpecificBlocks(pos, blocks, name);
                 }
 
                 // 5. Extraer "requests" (Las tareas a encolar)
