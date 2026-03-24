@@ -31,3 +31,11 @@ UPDATE,config.sys,config_modificado
 DELETE,image_01.png
 UPDATE,data_log.csv,data_log_modificado
 UPDATE,nh,DAR
+UPDATE,script.py,script_modificado
+UPDATE,config.sys,config_modificado
+DELETE,image_01.png
+UPDATE,data_log.csv,data_log_modificado
+UPDATE,script.py,script_modificado
+UPDATE,config.sys,config_modificado
+DELETE,image_01.png
+UPDATE,data_log.csv,data_log_modificado
